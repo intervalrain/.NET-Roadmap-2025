@@ -14,10 +14,10 @@
 - [x] NuGet
 
 ## 2. General Development Skills
-- [ ] Vension Control - Git
-- [ ] Data Structure & Algorithms
-- [ ] Clean Code
-- [ ] Refactoring
+- [x] Version Control - Git
+- [x] Data Structure & Algorithms
+- [x] Clean Code
+- [x] Refactoring
 - [ ] Design Patterns
 - [ ] SOLID Principles
 - [ ] Software Architectures
@@ -150,7 +150,7 @@
 - [ ] NuGet
 
 ## 2. General Development Skills
-- [ ] Vension Control - Git
+- [x] Version Control - Git
 - [ ] Data Structure & Algorithms
 - [ ] Clean Code
 - [ ] Refactoring

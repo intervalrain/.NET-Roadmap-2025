@@ -1,4 +1,4 @@
-# C# 基礎語法指南 (Basics of C# 6 - 13)
+# 1.1 C# 基礎語法指南 (Basics of C# 6 - 13)
 
 > **(什麼是 C# 6 - 13?)**
 >
@@ -115,8 +115,7 @@ Console.WriteLine(SimpleAdd(5, 3)); // 輸出: 8
 你已閱讀完 C# 基礎語法的核心概念。如果都理解了，請告訴我。我會為你更新 `README.md` 的進度，然後我們再繼續下一個主題：**Dotnet CLI**。
 
 
-# Dotnet CLI
-# Dotnet CLI 指南
+# 1.2 Dotnet CLI 指南
 
 `dotnet CLI` (Command-Line Interface) 是 .NET 開發者的核心工具之一。它讓你可以直接在終端機中建立、建置、測試和發佈 .NET 應用程式，而不需要依賴圖形化介面 (如 Visual Studio)。
 
@@ -183,7 +182,7 @@ Console.WriteLine(SimpleAdd(5, 3)); // 輸出: 8
 
 如果都理解了，請告訴我。我會為你更新 `README.md` 的進度，然後我們再繼續下一個主題：**.NET Framework**。
 
-# .NET Framework vs. .NET Core vs. .NET (5+)
+# 1.3 .NET Framework vs. .NET Core vs. .NET (5+)
 
 當你剛開始學習 .NET 時，可能會對 `.NET Framework`, `.NET Core`, 和現在的 `.NET 8` 等名詞感到困惑。了解它們的演進對於選擇正確的技術堆疊至關重要。
 
@@ -227,7 +226,7 @@ Console.WriteLine(SimpleAdd(5, 3)); // 輸出: 8
 
 如果都理解了，請告訴我。我會為你更新 `README.md` 的進度，然後我們再繼續下一個主題。
 
-# .NET Standard 與 NuGet
+# 1.4 .NET Standard 與 NuGet
 
 這是本單元的最後一個理論主題，它們是 .NET 生態系中不可或缺的基石。
 
