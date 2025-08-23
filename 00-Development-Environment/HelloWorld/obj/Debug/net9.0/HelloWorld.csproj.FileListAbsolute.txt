@@ -1,0 +1,14 @@
+/workspaces/dotnet/00-Development-Environment/HelloWorld/bin/Debug/net9.0/HelloWorld
+/workspaces/dotnet/00-Development-Environment/HelloWorld/bin/Debug/net9.0/HelloWorld.deps.json
+/workspaces/dotnet/00-Development-Environment/HelloWorld/bin/Debug/net9.0/HelloWorld.runtimeconfig.json
+/workspaces/dotnet/00-Development-Environment/HelloWorld/bin/Debug/net9.0/HelloWorld.dll
+/workspaces/dotnet/00-Development-Environment/HelloWorld/bin/Debug/net9.0/HelloWorld.pdb
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/HelloWorld.GeneratedMSBuildEditorConfig.editorconfig
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/HelloWorld.AssemblyInfoInputs.cache
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/HelloWorld.AssemblyInfo.cs
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/HelloWorld.csproj.CoreCompileInputs.cache
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/HelloWorld.dll
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/refint/HelloWorld.dll
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/HelloWorld.pdb
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/HelloWorld.genruntimeconfig.cache
+/workspaces/dotnet/00-Development-Environment/HelloWorld/obj/Debug/net9.0/ref/HelloWorld.dll

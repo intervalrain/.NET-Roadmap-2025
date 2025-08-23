@@ -1,9 +1,9 @@
 # .NET 開發 Readmap
 
 ## 0. 開發環境
-- [ ] Visual Studio Code
-- [ ] Docker
-- [ ] Dev container
+- [x] Visual Studio Code
+- [x] Docker
+- [x] Dev container
 
 ## 1. C#
 - [ ] Basics of C# 6 - 13
