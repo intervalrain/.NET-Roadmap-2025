@@ -1,16 +1,14 @@
-# 1.1 C# 基礎語法指南 (Basics of C# 6 - 13)
+# Chapter 1.1: Basics of C# (C# 6 - 13)
 
 > **(什麼是 C# 6 - 13?)**
->
 > C# 語言本身是跟著 .NET 平台一起演進的。每個新版的 .NET 都會帶來新版的 C#。
 > - **C# 6** (與 .NET Framework 4.6/.NET Core 1.0 一同發布) 加入了許多方便的「語法糖」，讓程式碼更簡潔 (例如本指南提到的字串內插)。
 > - **C# 12** 是撰寫本指南時的最新版本 (與 .NET 8 一同發布)。
->
 > 本指南的標題意味著我們將涵蓋從 C# 6 開始引入的現代 C# 核心語法，並一路延伸至最新的版本。
 
 本指南將帶你了解 C# 的基礎語法。所有程式碼範例都將直接呈現在這裡，讓你專注於閱讀和理解概念。
 
-## 1. 變數與資料型別 (Variables and Data Types)
+## 1. Variables and Data Types
 
 C# 是一種強型別語言，這意味著每個變數都必須有明確的型別。
 
@@ -35,7 +33,7 @@ decimal price = 99.95m;        // decimal (m後綴)
 Console.WriteLine(message);
 ```
 
-## 2. 流程控制 (Control Flow)
+## 2. Control Flow
 
 ### if-else 條件判斷
 
@@ -59,7 +57,7 @@ for (int i = 1; i <= 3; i++)
 }
 ```
 
-## 3. 方法 (Methods)
+## 3. Methods
 
 方法是可重複使用的程式碼區塊。
 
@@ -74,11 +72,11 @@ void Greet(string name)
 Greet("Rain"); // 輸出: Hello, Rain!
 ```
 
-## 4. C# 6+ 的語法糖 (Syntactic Sugar)
+## 4. C# 6+ Syntactic Sugar
 
 現代 C# 版本加入了許多簡潔的寫法。
 
-### 字串內插 (String Interpolation)
+### String Interpolation
 
 這是一種比用 `+` 號串接字串更清晰的寫法。
 
@@ -115,11 +113,11 @@ Console.WriteLine(SimpleAdd(5, 3)); // 輸出: 8
 你已閱讀完 C# 基礎語法的核心概念。如果都理解了，請告訴我。我會為你更新 `README.md` 的進度，然後我們再繼續下一個主題：**Dotnet CLI**。
 
 
-# 1.2 Dotnet CLI 指南
+# Chapter 1.2: Dotnet CLI
 
 `dotnet CLI` (Command-Line Interface) 是 .NET 開發者的核心工具之一。它讓你可以直接在終端機中建立、建置、測試和發佈 .NET 應用程式，而不需要依賴圖形化介面 (如 Visual Studio)。
 
-## 1. 核心命令 (Core Commands)
+## 1. Core Commands
 
 以下是幾個最常用且最重要的 `dotnet` 指令：
 
@@ -159,7 +157,7 @@ Console.WriteLine(SimpleAdd(5, 3)); // 輸出: 8
 **範例：**
 - `dotnet publish -c Release`: 以 `Release` 組態建置專案，並將結果發佈到 `bin/Release/netX.X/publish/` 目錄下。`-c` 是 `--configuration` 的縮寫。
 
-## 2. 專案與相依性管理
+## 2. Project and Dependency Management
 
 ### `dotnet add package`
 
@@ -182,7 +180,7 @@ Console.WriteLine(SimpleAdd(5, 3)); // 輸出: 8
 
 如果都理解了，請告訴我。我會為你更新 `README.md` 的進度，然後我們再繼續下一個主題：**.NET Framework**。
 
-# 1.3 .NET Framework vs. .NET Core vs. .NET (5+)
+# Chapter 1.3: .NET Framework vs. .NET Core vs. .NET (5+)
 
 當你剛開始學習 .NET 時，可能會對 `.NET Framework`, `.NET Core`, 和現在的 `.NET 8` 等名詞感到困惑。了解它們的演進對於選擇正確的技術堆疊至關重要。
 
@@ -226,7 +224,7 @@ Console.WriteLine(SimpleAdd(5, 3)); // 輸出: 8
 
 如果都理解了，請告訴我。我會為你更新 `README.md` 的進度，然後我們再繼續下一個主題。
 
-# 1.4 .NET Standard 與 NuGet
+# Chapter 1.4: .NET Standard & NuGet
 
 這是本單元的最後一個理論主題，它們是 .NET 生態系中不可或缺的基石。
 
