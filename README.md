@@ -18,7 +18,7 @@
 - [x] Data Structure & Algorithms
 - [x] Clean Code
 - [x] Refactoring
-- [ ] Design Patterns
+- [x] Design Patterns
 - [ ] SOLID Principles
 - [ ] Software Architectures
   - [ ] Layered

@@ -368,3 +368,276 @@ Clean Code 是**名詞**，是我們的目的地。Refactoring 是**動詞**，�
 這個主題是建立在 Clean Code 之上的理論，因此沒有練習。
 
 如果您理解了「重構」是達成「乾淨程式碼」的手段這個核心概念，請告訴我，我們就可以進入下一個主題：**設計模式 (Design Patterns)**。
+
+---
+
+# 2.5 設計模式 (Design Patterns)
+
+設計模式是軟體開發領域中，針對特定問題的、可重用的、經過驗證的解決方案。你可以把它們想像成是前人總結出來的「武功招式」或「建築藍圖」。你不需要自己從零開始發明輪子，而是可以站在巨人的肩膀上，用更優雅、更有效率的方式解決常見的設計問題。
+
+## 1. 為何重要？
+
+- **提供共同語言**: 當你和同事說「這裡可以用工廠方法」，對方立刻就能理解你的意圖，大幅提升溝通效率。
+- **經過驗證的解決方案**: 這些模式歷經了無數專案的考驗，能幫助你避免常見的設計陷阱。
+- **提升程式碼品質**: 正確使用設計模式，可以讓你的程式碼更有彈性、更容易維護和擴充。
+
+## 2. 設計模式的分類
+
+最著名的分類來自「四人幫 (Gang of Four, GoF)」的《設計模式》一書，分為三大類：
+
+1.  **建立型 (Creational)**: 專注於「如何建立物件」，將物件的建立過程與使用者端解耦，讓程式在決定要建立哪些物件時能有更大的彈性。
+2.  **結構型 (Structural)**: 專注於「如何組合物件」，透過繼承、合約 (interface) 等方式，將類別或物件組合成更大的結構，同時保持結構的彈性與效率。
+3.  **行為型 (Behavioral)**: 專注於「物件之間的互動」，定義物件間的溝通方式與責任分配，讓物件可以更有效地協同工作。
+
+---
+
+## 建立型模式 (Creational Patterns)
+
+### 1. 單例模式 (Singleton)
+
+- **目的**: 確保一個類別在整個應用程式中，永遠只有一個執行個體 (instance)，並提供一個全域的存取點。
+- **範例**: `AppSettings`，日誌服務 (Logging Service)。
+- **注意**: 單例模式雖然簡單，但可能隱藏了類別之間的依賴關係，並對單元測試不友善。在現代 .NET 開發中，我們更常使用「依賴注入容器 (DI Container)」來管理物件的生命週期 (例如設定為 Singleton)。
+
+```csharp
+// 使用 Lazy<T> 是實現單例的現代、安全方式
+public sealed class AppSettings
+{
+    private static readonly Lazy<AppSettings> lazyInstance = 
+        new Lazy<AppSettings>(() => new AppSettings());
+
+    public static AppSettings Instance => lazyInstance.Value;
+
+    private AppSettings()
+    {
+        Console.WriteLine("AppSettings instance created.");
+    }
+}
+```
+
+### 2. 工廠方法模式 (Factory Method)
+
+- **目的**: 定義一個用於建立物件的介面，但讓子類別決定要實體化哪一個類別。工廠方法讓一個類別的實體化延遲到其子類別。
+- **範例**: 一個通知服務，可以根據使用者的偏好設定，決定要建立 `EmailNotifier` 還是 `SmsNotifier`。
+
+```csharp
+// 產品介面
+public interface INotifier { void Notify(string message); }
+// 具體產品
+public class EmailNotifier : INotifier { public void Notify(string m) => Console.WriteLine($"Email: {m}"); }
+public class SmsNotifier : INotifier { public void Notify(string m) => Console.WriteLine($"SMS: {m}"); }
+
+// 創造者 (工廠)
+public abstract class NotifierFactory
+{
+    public abstract INotifier CreateNotifier();
+}
+
+// 具體的創造者
+public class EmailNotifierFactory : NotifierFactory
+{
+    public override INotifier CreateNotifier() => new EmailNotifier();
+}
+public class SmsNotifierFactory : NotifierFactory
+{
+    public override INotifier CreateNotifier() => new SmsNotifier();
+}
+```
+
+### 3. 建造者模式 (Builder)
+
+- **目的**: 將一個複雜物件的建構過程與其表示分離，使得同樣的建構過程可以建立不同的表示。
+- **範例**: 建構一份複雜的報告，需要設定標題、頁首、內容、頁尾等多個部分。
+
+```csharp
+// 複雜的物件
+public class Report
+{
+    public string Title { get; set; }
+    public string Content { get; set; }
+    public string Footer { get; set; }
+    public void Display() => Console.WriteLine($"{Title}\n{Content}\n{Footer}");
+}
+
+// Builder 介面
+public interface IReportBuilder
+{
+    void SetTitle(string title);
+    void SetContent(string content);
+    void SetFooter(string footer);
+    Report GetReport();
+}
+
+// 具體的 Builder
+public class PdfReportBuilder : IReportBuilder
+{
+    private Report _report = new Report();
+    public void SetTitle(string title) => _report.Title = $"PDF Title: {title}";
+    public void SetContent(string c) => _report.Content = c;
+    public void SetFooter(string f) => _report.Footer = f;
+    public Report GetReport() => _report;
+}
+```
+
+---
+
+## 結構型模式 (Structural Patterns)
+
+### 4. 轉接器模式 (Adapter)
+
+- **目的**: 將一個類別的介面，轉換成用戶端期望的另一個介面。Adapter 能讓原本介面不相容的類別可以合作無間。
+- **範例**: 假設我們有一個新的日誌系統只接受 JSON 格式，但我們需要沿用一個舊的、只能輸出 XML 的日誌服務。
+
+```csharp
+// 舊的、不相容的服務 (Adaptee)
+public class XmlLogger { public void LogXml(string data) => Console.WriteLine($"<log>{data}</log>"); }
+
+// 新系統期望的目標介面 (Target)
+public interface IJsonLogger { void LogJson(string jsonData); }
+
+// 轉接器 (Adapter)
+public class LoggerAdapter : IJsonLogger
+{
+    private readonly XmlLogger _xmlLogger = new XmlLogger();
+    public void LogJson(string jsonData)
+    {
+        string xmlData = $"{{ \"json\": \"{jsonData}\" }}"; // Simplified conversion
+        _xmlLogger.LogXml(xmlData);
+    }
+}
+```
+
+### 5. 裝飾者模式 (Decorator)
+
+- **目的**: 動態地將額外的功能附加到一個物件上。相較於使用繼承，裝飾者模式提供了更有彈性的替代方案來擴充功能。
+- **範例**: 一個基本的通知服務，我們可以動態地為它加上 SMS、Slack 等額外的通知渠道。
+
+```csharp
+// 組件介面
+public interface INotifierComponent { void Send(string message); }
+// 具體組件
+public class BasicNotifier : INotifierComponent { public void Send(string m) => Console.WriteLine($"Basic notification: {m}"); }
+
+// 裝飾者基底
+abstract class NotifierDecorator : INotifierComponent
+{
+    protected INotifierComponent _component;
+    public NotifierDecorator(INotifierComponent c) => _component = c;
+    public virtual void Send(string m) => _component.Send(m);
+}
+
+// 具體裝飾者
+class SmsDecorator : NotifierDecorator
+{
+    public SmsDecorator(INotifierComponent c) : base(c) { }
+    public override void Send(string m)
+    {
+        base.Send(m);
+        Console.WriteLine($"Sent by SMS: {m}");
+    }
+}
+// 使用: new SmsDecorator(new BasicNotifier()).Send("Hi");
+```
+
+### 6. 外觀模式 (Facade)
+
+- **目的**: 為一個複雜的子系統提供一個單一的、簡化的介面。Facade 定義了一個更高層次的介面，讓子系統更容易使用。
+- **範例**: 一個影片轉檔服務，內部可能包含讀取檔案、解析音訊、處理視訊、編碼等多個複雜步驟，但對外只提供一個 `ConvertVideo` 的簡單方法。
+
+```csharp
+// 複雜的子系統
+class VideoFileHandler { public void Read(string f) => Console.WriteLine("Reading file..."); }
+class AudioProcessor { public void Process() => Console.WriteLine("Processing audio..."); }
+class VideoProcessor { public void Process() => Console.WriteLine("Processing video..."); }
+
+// 外觀
+public class VideoConversionFacade
+{
+    public void ConvertVideo(string fileName)
+    {
+        new VideoFileHandler().Read(fileName);
+        new AudioProcessor().Process();
+        new VideoProcessor().Process();
+        Console.WriteLine("Conversion complete.");
+    }
+}
+```
+
+---
+
+## 行為型模式 (Behavioral Patterns)
+
+### 7. 策略模式 (Strategy)
+
+- **目的**: 定義一系列演算法，並將每一個演算法封裝起來，讓它們可以互相替換。策略模式讓演算法的選擇可以和使用演算法的用戶端分開。
+- **範例**: 一個訂單的運費計算，可以根據不同的貨運公司 (FedEx, UPS) 或地區，動態切換不同的計算策略。
+
+```csharp
+// 策略介面
+public interface IShippingStrategy { decimal Calculate(Order order); }
+// 具體策略
+public class FedExStrategy : IShippingStrategy { public decimal Calculate(Order o) => 5.0m; }
+public class UpsStrategy : IShippingStrategy { public decimal Calculate(Order o) => 6.5m; }
+
+// Context
+public class ShippingCostCalculator
+{
+    private IShippingStrategy _strategy;
+    public void SetStrategy(IShippingStrategy s) => _strategy = s;
+    public decimal CalculateShippingCost(Order order) => _strategy.Calculate(order);
+}
+```
+
+### 8. 觀察者模式 (Observer)
+
+- **目的**: 定義物件之間一種一對多的依賴關係，當一個物件的狀態改變時，所有依賴它的物件都會被通知並自動更新。
+- **範例**: 一個股票價格佈告欄 (主題)，多個股民 (觀察者) 訂閱了它。當股票價格變動時，所有股民都會收到通知。
+
+```csharp
+// 觀察者介面
+public interface IInvestor { void Update(Stock stock); }
+// 主題
+public abstract class Stock
+{
+    private List<IInvestor> _investors = new List<IInvestor>();
+    public void Attach(IInvestor i) => _investors.Add(i);
+    public void Notify() { foreach (var i in _investors) { i.Update(this); } }
+}
+
+// 具體主題
+public class IbmStock : Stock { /* ... */ }
+```
+
+### 9. 責任鏈模式 (Chain of Responsibility)
+
+- **目的**: 讓多個物件都有機會處理請求，從而避免請求的傳送者和接收者之間的耦合關係。將這些物件連成一條鏈，並沿著這條鏈傳遞該請求，直到有一個物件處理它為止。
+- **範例**: 一個公司的費用報銷流程，需要經過經理、總監、副總等層層審批。
+
+```csharp
+// Handler 介面
+public abstract class Approver { 
+    protected Approver _successor;
+    public void SetSuccessor(Approver s) => _successor = s;
+    public abstract void ProcessRequest(Purchase purchase);
+}
+
+// 具體 Handler
+public class Manager : Approver
+{
+    public override void ProcessRequest(Purchase p)
+    {
+        if (p.Amount < 1000) Console.WriteLine("Manager approved.");
+        else if (_successor != null) _successor.ProcessRequest(p);
+    }
+}
+// ... 其他 Approver 如 Director, VP
+```
+
+---
+
+設計模式的學習非一蹴可幾，重點是理解每個模式背後所要解決的「問題」為何。
+
+當您未來在開發中遇到類似的設計問題時，能夠想起「這裡似乎可以用某某模式」，便是最大的收穫。
+
+如果您已閱讀完這份擴充指南，請告訴我，我們就可以進入本單元的最後一個主題：**SOLID 原則**。
+```
