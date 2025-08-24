@@ -19,7 +19,7 @@
 - [x] Clean Code
 - [x] Refactoring
 - [x] Design Patterns
-- [ ] SOLID Principles
+- [x] SOLID Principles
 - [ ] Software Architectures
   - [ ] Layered
   - [ ] Microservices

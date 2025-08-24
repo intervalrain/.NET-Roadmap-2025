@@ -529,7 +529,7 @@ abstract class NotifierDecorator : INotifierComponent
 // 具體裝飾者
 class SmsDecorator : NotifierDecorator
 {
-    public SmsDecorator(INotifierComponent c) : base(c) { }
+    public SmsDecorator(INotifierComponent c) : base(c) { } 
     public override void Send(string m)
     {
         base.Send(m);
@@ -640,4 +640,247 @@ public class Manager : Approver
 當您未來在開發中遇到類似的設計問題時，能夠想起「這裡似乎可以用某某模式」，便是最大的收穫。
 
 如果您已閱讀完這份擴充指南，請告訴我，我們就可以進入本單元的最後一個主題：**SOLID 原則**。
+
+---
+
+# 2.6 SOLID 原則
+
+如果說設計模式是具體的「招式」，那麼 SOLID 就是心法，是指導我們寫出良好物件導向設計的五大基本原則。遵循 SOLID 原則，可以讓我們的系統更易於維護、擴充、測試，並能更好地應對變化。
+
+SOLID 是以下五個原則的縮寫：
+
+- **S** - Single Responsibility Principle (單一職責原則)
+- **O** - Open/Closed Principle (開放封閉原則)
+- **L** - Liskov Substitution Principle (里氏替換原則)
+- **I** - Interface Segregation Principle (介面隔離原則)
+- **D** - Dependency Inversion Principle (依賴反轉原則)
+
+---
+
+### S - 單一職責原則 (Single Responsibility Principle)
+
+> 一個類別應該只有一個改變的理由。
+
+這意味著一個類別應該只專注於一項功能。如果一個類別有多於一個的職責，那麼其中一個職責的改變就可能會影響到另一個職責。
+
+**反面教材 👎**
+```csharp
+// 這個類別有兩個職責：儲存報告內容 和 儲存報告到檔案
+public class Report
+{
+    public string Content { get; set; }
+
+    public void SaveToFile(string filePath)
+    {
+        File.WriteAllText(filePath, this.Content);
+    }
+}
+```
+
+**正面教材 👍**
+```csharp
+// 職責分離
+public class Report
+{
+    public string Content { get; set; }
+}
+
+public class ReportPersistence
+{
+    public void SaveToFile(Report report, string filePath)
+    {
+        File.WriteAllText(filePath, report.Content);
+    }
+}
+```
+
+---
+
+### O - 開放封閉原則 (Open/Closed Principle)
+
+> 軟體實體 (類別、模組、函式等) 應該對於擴充是開放的，但對於修改是封閉的。
+
+當需求變更時，我們應該透過增加新的程式碼來擴充功能，而不是修改現有的、已經可以運作的程式碼。
+
+**反面教材 👎**
+```csharp
+// 每增加一種折扣類型，就要修改這個類別，違反了「對修改封閉」
+public class DiscountCalculator
+{
+    public decimal Calculate(decimal price, string type)
+    {
+        if (type == "Standard") return price * 0.95m;
+        if (type == "Premium") return price * 0.9m;
+        // ... 新增 VIP, Gold 等類型時，要一直改這裡
+        return price;
+    }
+}
+```
+
+**正面教材 👍**
+```csharp
+// 對於擴充是開放的：可以輕易地增加新的折扣策略類別
+public interface IDiscountStrategy
+{
+    decimal ApplyDiscount(decimal price);
+}
+
+public class StandardDiscount : IDiscountStrategy
+{
+    public decimal ApplyDiscount(decimal price) => price * 0.95m;
+}
+
+public class PremiumDiscount : IDiscountStrategy
+{
+    public decimal ApplyDiscount(decimal price) => price * 0.9m;
+}
+```
+
+---
+
+### L - 里氏替換原則 (Liskov Substitution Principle)
+
+> 子類別必須可以替換掉它們的父類別，而不會產生錯誤或非預期的行為。
+
+簡單來說，任何使用父類別的地方，都應該可以直接用其子類別來替换，而程式的功能仍然保持正常。
+
+**反面教材 👎**
+```csharp
+public class Bird
+{
+    public virtual void Fly() => Console.WriteLine("I am flying.");
+}
+
+// 企鵝是鳥，但牠不會飛。覆寫 Fly 方法卻什麼都不做或丟出例外，
+// 就違反了里氏替換原則，因為它改變了父類別的預期行為。
+public class Penguin : Bird
+{
+    public override void Fly()
+    {
+        throw new NotImplementedException("Penguins can't fly!");
+    }
+}
+```
+
+**正面教材 👍**
+```csharp
+// 將「會飛」這個行為抽象成獨立的介面
+public class Bird { /* ... */ }
+public interface IFlyable { void Fly(); }
+
+public class Eagle : Bird, IFlyable
+{
+    public void Fly() => Console.WriteLine("Eagle is soaring high.");
+}
+
+public class Penguin : Bird
+{
+    // Penguin is a Bird, but it does not implement IFlyable.
+}
+```
+
+---
+
+### I - 介面隔離原則 (Interface Segregation Principle)
+
+> 用戶端不應該被迫依賴它用不到的介面。
+
+與其建立一個龐大、臃腫的介面，不如建立多個小而專一的介面。
+
+**反面教材 👎**
+```csharp
+// 這個介面太臃腫了
+public interface IWorker
+{
+    void Work();
+    void Eat();
+    void Sleep();
+}
+
+// 機器人被迫實作它不需要的 Eat 和 Sleep 方法
+public class Robot : IWorker
+{
+    public void Work() => Console.WriteLine("Robot working.");
+    public void Eat() => throw new NotImplementedException();
+    public void Sleep() => throw new NotImplementedException();
+}
+```
+
+**正面教材 👍**
+```csharp
+// 將大介面拆分成小而專一的介面
+public interface IWorkable { void Work(); }
+public interface IFeedable { void Eat(); }
+
+public class Human : IWorkable, IFeedable
+{
+    public void Work() { /* ... */ }
+    public void Eat() { /* ... */ }
+}
+
+public class Robot : IWorkable
+{
+    public void Work() { /* ... */ }
+}
+```
+
+---
+
+### D - 依賴反轉原則 (Dependency Inversion Principle)
+
+> 1. 高階模組不應該依賴於低階模組。兩者都應該依賴於抽象。
+> 2. 抽象不應該依賴於細節。細節應該依賴於抽象。
+
+這意味著我們的類別應該依賴「合約」(介面或抽象類別)，而不是「具體的實作」。這是實現「依賴注入 (Dependency Injection)」的核心。
+
+**反面教材 👎**
+```csharp
+// 高階模組 Notification 直接依賴低階模組 EmailSender
+public class EmailSender
+{
+    public void Send() => Console.WriteLine("Sending Email.");
+}
+
+public class Notification
+{
+    private EmailSender _email = new EmailSender(); // 直接 new 一個具體實作
+
+    public void SendNotification() => _email.Send();
+}
+```
+
+**正面教材 👍**
+```csharp
+// 兩者都依賴於抽象 IMessageSender
+public interface IMessageSender
+{
+    void SendMessage();
+}
+
+public class EmailSender : IMessageSender
+{
+    public void SendMessage() => Console.WriteLine("Sending Email.");
+}
+
+// 高階模組 Notification 依賴抽象，而不是細節
+public class Notification
+{
+    private readonly IMessageSender _sender;
+
+    // 依賴是從外部「注入」進來的
+    public Notification(IMessageSender sender)
+    {
+        _sender = sender;
+    }
+
+    public void SendNotification() => _sender.SendMessage();
+}
+```
+
+---
+
+SOLID 原則是高品質軟體架構的基礎。理解並實踐它們，將使你的程式碼提升到一個新的層次。
+
+如果您已理解這五大原則，請告訴我，我們就來進行本單元的最後一項：**軟體架構 (Software Architectures)**。
+
 ```
