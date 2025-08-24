@@ -22,11 +22,11 @@
 - [x] SOLID Principles
 
 ## 3. ASP.NET Core
-- [ ] Web Basics
-  - [ ] How Internet works
-  - [ ] HTTP(S) protocol
-  - [ ] How DNS works
-  - [ ] What happens when you type a URL into the browser?
+- [x] Web Basics
+  - [x] How Internet works
+  - [x] HTTP(S) protocol
+  - [x] How DNS works
+  - [x] What happens when you type a URL into the browser?
 - [ ] ASP.NET Core Fundamentals
 - [ ] ASP.NET MVC
 - [ ] Filters & Attributes
