@@ -65,22 +65,22 @@ git init
 2.  **檢查狀態**
     回到終端機，輸入以下指令來查看當前倉庫的狀態：
     ```bash
-git status
-```
+    git status
+    ```
     你會看到 `plan.txt` 被列為 `Untracked files` (未追蹤的檔案)。
 
 3.  **加入暫存區**
     使用 `git add` 指令將這個新檔案加入暫存區：
     ```bash
-git add plan.txt
-```
+    git add plan.txt
+    ```
     再次執行 `git status`，你會看到 `plan.txt` 現在位於 `Changes to be committed` (準備提交的變更) 清單中。
 
 4.  **提交到倉庫**
     使用 `git commit` 指令，將暫存區的內容提交到本地倉庫。`-m` 參數可以讓你直接在指令中輸入提交訊息。
     ```bash
-git commit -m "Initial commit: Create learning plan"
-```
+    git commit -m "Initial commit: Create learning plan"
+    ```
 
 ### 步驟 3: 第二次提交
 
@@ -95,15 +95,15 @@ git commit -m "Initial commit: Create learning plan"
 2.  **查看變更**
     使用 `git diff` 指令，查看工作目錄中的檔案與上次提交的版本有何不同：
     ```bash
-git diff
-```
+    git diff
+    ```
 
 3.  **加入暫存區並提交**
     這次我們使用 `.` 來代表「所有變更的檔案」。
     ```bash
-git add .
-git commit -m "Update plan to include clean code"
-```
+    git add .
+    git commit -m "Update plan to include clean code"
+    ```
 
 ### 步驟 4: 查看歷史紀錄
 
@@ -882,5 +882,4 @@ public class Notification
 SOLID 原則是高品質軟體架構的基礎。理解並實踐它們，將使你的程式碼提升到一個新的層次。
 
 如果您已理解這五大原則，請告訴我，我們就來進行本單元的最後一項：**軟體架構 (Software Architectures)**。
-
 ```

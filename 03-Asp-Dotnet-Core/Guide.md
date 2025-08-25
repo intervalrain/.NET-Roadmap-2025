@@ -11,7 +11,7 @@
 
 當您在瀏覽器中輸入一個 URL 時，您其實是在告訴您的 Client 向一個特定的 Server 發送請求。然後，Server 會回傳網站的資料，您的瀏覽器會將這些資料組合起來並顯示出來。
 
-![Client-Server-Model](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/First_steps/Client-Server_overview/basic_static_app_server.pnggi)
+![Client-Server-Model](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/First_steps/Client-Server_overview/basic_static_app_server.png)
 
 ## 2. IP Addresses and DNS
 
@@ -110,7 +110,7 @@ HTTP (Hypertext Transfer Protocol) 是一套定義了 Client 和 Server 之間�
 1.  **Client Hello:** 您的瀏覽器向伺服器發送一個 "Hello" 訊息。這個訊息包含了瀏覽器支援的 TLS 版本和加密演算法列表。
 
 2.  **Server Hello & Certificate:**
-    -   伺服器回覆一個 "Hello"，並從瀏覽器提供的列表中選擇一個雙方都支援的加密演算法。
+    -   伺服務器回覆一個 "Hello"，並從瀏覽器提供的列表中選擇一個雙方都支援的加密演算法。
     -   最關鍵的是，伺服器會提供它的 **SSL/TLS Certificate (憑證)**。
 
 3.  **Certificate Verification:**
@@ -165,40 +165,6 @@ sequenceDiagram
     Client->>Server: 加密的 HTTP 資料<br>(使用對稱的 Session Key)
     Server->>Client: 加密的 HTTP 資料<br>(使用對稱的 Session Key)
 ```
-
-+ Sequence Diagram(通俗版)
-```mermaid
-sequenceDiagram
-    participant 小明 as 小明 (你)
-    participant 小美 as 小美 (網站伺服器)
-    participant 警察叔叔 as 警察叔叔 (CA)
-
-    Note over 小明, 小美: 想說秘密！先定規則！
-
-    小明->>小美: 嗨！我們來秘密通話吧！
-    Note left of 小明: 我會用「倒著說」或「密碼語」<br>你哪一種比較厲害？
-
-    小美->>小明: 好啊！我們用「密碼語」吧！
-    Note right of 小美: 這是我的「身份證」！<br>（上面有我的公開密碼鎖）
-
-    Note over 小明, 警察叔叔: 檢查身份證是不是真的！
-    小明->>警察叔叔: 警察叔叔，這是小美嗎？
-    警察叔叔-->>小明: 對！是她沒錯！✅
-
-    Note over 小明: 想一個秘密暗號...
-    小明->>小美: 告訴你我們的暗號！<br>（用她的公開密碼鎖鎖上盒子📦送過去）
-
-    Note over 小明, 小美: 耶！我們有一樣的暗號了！
-
-    小明->>小美: 準備好了！開始說秘密！🔒
-    小美->>小明: 我也準備好了！開始吧！🔒
-
-    Note over 小明, 小美: 🎉 成功！開始秘密通話！🎉
-
-    小明->>小美: 加密的悄悄話...<br>（比如：我想買冰淇淋🍦）
-    小美->>小明: 加密的回覆...<br>（比如：好的！總共50元💰）
-```
-
 ---
 
 # Chapter 3.3: How DNS Works (Deep Dive)
@@ -231,6 +197,42 @@ sequenceDiagram
     -   Resolver 拿到了 IP 位址，它會先將這個答案快取起來 (快取的時間由一個稱為 TTL (Time-To-Live) 的值決定)，然後再將 IP 位址回傳給您的瀏覽器。
     -   下次再有其他人向這個 Resolver 查詢同一個網址時，它就可以直接從快取中提供答案，不必再重複整個查詢過程。
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser as Browser/OS Cache
+    participant Resolver as Recursive DNS Resolver
+    participant Root as Root DNS Servers
+    participant TLD as TLD Name Servers (.com)
+    participant Auth as Authoritative Name Servers
+
+    User->>Browser: 請求解析 www.google.com
+    
+    alt 快取命中
+        Browser-->>User: 直接返回 IP (查詢結束)
+    else 快取未命中
+        Browser->>Resolver: 轉發 DNS 查詢請求
+        
+        alt 快取命中
+            Resolver-->>Browser: 返回 IP 地址
+            Browser-->>User: 返回 IP 地址    
+        else 快取未命中
+            Resolver->>Root: 查詢 www.google.com
+            Root-->>Resolver: 返回 .com TLD 伺服器地址
+            
+            Resolver-->>TLD: 查詢 www.google.com
+            TLD-->>Resolver: 返回 google.com 權威伺服器地址
+            
+            Resolver->>Auth: 查詢 www.google.com
+            Auth-->>Resolver: 返回 www 的 IP 地址
+            
+            Note right of Resolver: 快查結果 (根據 TTL)
+            Resolver-->>Browser: 返回 IP 地址
+            Browser-->>User: 返回 IP 地址
+        end
+    end
+```
+
 ## 2. Common DNS Record Types
 
 一個域名的 Authoritative Name Server 不只儲存 IP 位址，它還儲存了很多不同類型的紀錄 (Record)，以下是幾種最常見的：
@@ -242,4 +244,130 @@ sequenceDiagram
 
 ---
 
-你已深入了解 DNS 的運作原理。如果都理解了，請告訴我，我們將繼續 Web Basics 的最後一個主題：**What happens when you type a URL into the browser?**
+# Chapter 3.4: What Happens When You Type a URL?
+
+這個問題是 Web 開發面試中的經典問題，因爲它完美地將我們先前學到的所有概念——DNS, HTTP(S), Client/Server——全部串連起來。讓我們來走一遍完整的旅程。
+
+假設您在瀏覽器中輸入 `https://www.google.com` 並按下 Enter。
+
+1.  **您按下 Enter 鍵:** 瀏覽器從 URL 中解析出協議 (`https`)、域名 (`www.google.com`) 和路徑 (此處為 `/`，即根目錄)。
+
+2.  **DNS Lookup:**
+    - 瀏覽器開始進行我們在 `Chapter 3.3` 中深入探討的 DNS 查詢，以找到 `www.google.com` 的 IP 位址。
+    - 這個過程會依序檢查：瀏覽器快取 -> 作業系統快取 -> Recursive Resolver -> Root Server -> TLD Server -> Authoritative Name Server。
+    - 最終，瀏覽器獲得了 `www.google.com` 的 IP 位址，例如 `142.250.183.196`。
+
+3.  **TCP Handshake:**
+    - 在發送 HTTP 請求之前，瀏覽器需要與伺服器建立一個可靠的連線。這通過 **TCP (Transmission Control Protocol)** 的「三向交握 (Three-way Handshake)」來完成。
+    - **Client -> Server:** `SYN` (我想與你建立連線)
+    - **Server -> Client:** `SYN/ACK` (好的，我同意，你也準備好了嗎？)
+    - **Client -> Server:** `ACK` (是的，我準備好了！)
+    - 至此，一個穩定的 TCP 連線就建立好了。
+
+4.  **TLS Handshake:**
+    - 因為我們使用的是 `https`，所以現在需要在已建立的 TCP 連線之上，進行 `Chapter 3.2` 中描述的 TLS Handshake。
+    - 這個過程會驗證伺服器的身份 (透過 SSL/TLS 憑證)，並協商出一個對稱的 Session Key，用於加密後續的所有通訊。
+
+5.  **HTTP Request:**
+    - 現在，安全通道已建立，瀏覽器終於可以發送 HTTP 請求了。
+    - 請求的內容可能像這樣：
+      ```http
+      GET / HTTP/1.1
+      Host: www.google.com
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) ...
+      Accept: text/html,...
+      ```
+
+6.  **Server Processing:**
+    - Google 的伺服器接收到這個請求。
+    - Web Server (例如 Nginx, Apache) 將請求轉發給後端應用程式處理。
+    - **這就是 ASP.NET Core 發揮作用的地方！** 您的後端程式碼會執行，根據請求的路徑 (`/`) 和方法 (`GET`) 來決定要做什麼。在這個例子中，它會準備 Google 首頁的 HTML 內容。
+
+7.  **HTTP Response:**
+    - 伺服器將準備好的 HTML 內容打包成一個 HTTP 回應，發送回瀏覽器。
+    - 回應的內容可能像這樣：
+      ```http
+      HTTP/1.1 200 OK
+      Content-Type: text/html; charset=UTF-8
+      Content-Length: 15926
+      ...
+
+      <!doctype html><html>...</html>
+      ```
+
+8.  **Browser Rendering:**
+    - 瀏覽器接收到回應後，開始解析和渲染頁面。
+    - **Parse HTML:** 瀏覽器讀取 HTML，並建立一個 **DOM (Document Object Model)** 樹狀結構。
+    - **Fetch Additional Resources:** 在解析 HTML 的過程中，如果遇到 `<link rel="stylesheet" href="style.css">` 或 `<script src="main.js">` 或 `<img src="logo.png">` 等標籤，瀏覽器會為這些檔案發起新的 HTTP 請求去下載它們。這些請求可能會重複使用現有的 TCP 連線以提高效率。
+    - **Construct Render Tree:** 瀏覽器解析 CSS 並建立 **CSSOM (CSS Object Model)**。然後將 DOM 和 CSSOM 結合起來，建立 **Render Tree**。
+    - **Layout & Paint:** 瀏覽器根據 Render Tree 計算出每個元素在螢幕上的確切位置和大小 (Layout)，然後將它們實際繪製到螢幕上 (Paint)。
+    - **Execute JavaScript:** JavaScript 程式碼會被執行，它可能會修改 DOM 或 CSSOM，這可能會觸發頁面的重新佈局 (Re-layout) 和重繪 (Re-paint)。
+
+至此，您終於看到了 Google 的首頁！
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser
+    participant OS as OS/Browser Cache
+    participant Resolver as DNS Resolver
+    participant Root as Root Server
+    participant TLD as TLD Server
+    participant Auth as Auth Name Server
+    participant Server as Web Server
+    participant App as ASP.NET Core App
+
+    User->>Browser: 輸入 https://www.google.com<br/>按下 Enter
+    Browser->>Browser: 解析 URL (https, www.google.com, /)
+    
+    Note over Browser: DNS 解析開始
+    Browser->>OS: 檢查本地快取
+    alt 快取命中
+        OS-->>Browser: 返回 IP
+    else 快取未命中
+        OS->>Resolver: 查詢 www.google.com
+        Resolver->>Root: 查詢
+        Root-->>Resolver: 返回 .com TLD 地址
+        Resolver->>TLD: 查詢
+        TLD-->>Resolver: 返回 google.com 權威伺服器
+        Resolver->>Auth: 查詢 www
+        Auth-->>Resolver: 返回 IP (142.250.183.196)
+        Resolver-->>OS: 返回並緩存 IP
+        OS-->>Browser: 返回 IP
+    end
+
+    Note over Browser: 建立 TCP 連接
+    Browser->>Server: SYN (TCP 握手)
+    Server-->>Browser: SYN/ACK
+    Browser->>Server: ACK
+    
+    Note over Browser: TLS 握手 (HTTPS)
+    Browser->>Server: Client Hello
+    Server-->>Browser: Server Hello + Certificate
+    Browser->>Browser: 驗證證書
+    Browser->>Server: Pre-master Secret (加密)
+    Server-->>Browser: Finished (加密)
+    
+    Note over Browser: 發送 HTTP 請求
+    Browser->>Server: GET / HTTP/1.1<br/>Host: www.google.com
+    Server->>App: 轉發請求到 ASP.NET Core
+    App->>App: 處理請求 (執行代碼)
+    App-->>Server: 生成 HTML 響應
+    Server-->>Browser: HTTP/1.1 200 OK<br/><html>...</html>
+
+    Note over Browser: 渲染頁面
+    Browser->>Browser: 解析 HTML → 構建 DOM
+    Browser->>Server: 請求 CSS/JS/圖片資源
+    Server-->>Browser: 返回資源文件
+    Browser->>Browser: 解析 CSS → 構建 CSSOM
+    Browser->>Browser: 構建 Render Tree
+    Browser->>Browser: Layout → Paint
+    Browser->>Browser: 執行 JavaScript
+    Browser-->>User: 顯示 Google 首頁
+```
+
+---
+
+恭喜！您已經完成了 `Web Basics` 的所有學習。這些是理解所有現代 Web 框架 (包括 ASP.NET Core) 的基石。
+
+如果都理解了，請告訴我，我將為您更新 `README.md` 的進度，然後我們就可以正式進入 **ASP.NET Core Fundamentals** 的學習！
