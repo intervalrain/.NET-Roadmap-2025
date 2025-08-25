@@ -27,7 +27,7 @@
   - [x] HTTP(S) protocol
   - [x] How DNS works
   - [x] What happens when you type a URL into the browser?
-- [ ] ASP.NET Core Fundamentals
+- [x] ASP.NET Core Fundamentals
 - [ ] ASP.NET MVC
 - [ ] Filters & Attributes
 - [ ] Middleware

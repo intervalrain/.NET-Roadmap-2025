@@ -371,3 +371,109 @@ sequenceDiagram
 恭喜！您已經完成了 `Web Basics` 的所有學習。這些是理解所有現代 Web 框架 (包括 ASP.NET Core) 的基石。
 
 如果都理解了，請告訴我，我將為您更新 `README.md` 的進度，然後我們就可以正式進入 **ASP.NET Core Fundamentals** 的學習！
+
+---
+# Chapter 3.5: ASP.NET Core Fundamentals
+
+## 前言
+
+歡迎來到 ASP.NET Core 的世界！這是微軟推出的高效能、跨平台的開源 Web 框架。在本章節中，我們將深入了解 ASP.NET Core 的核心概念，為後續的 Web 開發打下堅實的基礎。
+
+## 核心概念 (Core Concepts)
+
+### 1. Kestrel Web Server
+
+- **Kestrel** 是 ASP.NET Core 預設的跨平台 Web Server。它速度極快，但通常會搭配反向代理伺服器 (Reverse Proxy Server) 如 IIS、Nginx 或 Apache 一起使用，以獲得更強大的功能 (例如負載平衡、SSL 終止等)。
+
+### 2. 啟動與設定 (Startup & Configuration)
+
+- **`Program.cs`**: 在最新的 .NET 版本中，`Program.cs` 是應用程式的進入點。這裡會設定 Web Host、註冊服務 (Services) 以及定義請求處理管線 (Request Pipeline)。
+- **`appsettings.json`**: 這是主要的設定檔，用來存放應用程式的設定，例如資料庫連接字串、API 金鑰等。它可以根據不同的環境 (如 `Development`, `Production`) 有不同的版本。
+
+### 3. 中介軟體 (Middleware)
+
+- **Middleware** 是構成 ASP.NET Core 應用程式請求處理管線 (Request Pipeline) 的元件。每個請求都會依序通過這些中介軟體，每個中介軟體都可以對請求進行處理，然後決定是否要將請求傳遞給下一個中介軟體。
+- **順序很重要**: 中介軟體的註冊順序決定了它們在請求處理中的執行順序。例如，`UseAuthentication` (驗證) 必須在 `UseAuthorization` (授權) 之前。
+- **常見的中介軟體**:
+    - `UseRouting()`: 啟用路由功能。
+    - `UseEndpoints()`: 定義路由的終點 (Endpoints)，例如 MVC Controllers 或 Minimal API。
+    - `UseStaticFiles()`: 讓應用程式可以提供靜態檔案 (如 HTML, CSS, JavaScript)。
+    - `UseAuthentication()`: 啟用驗證。
+    - `UseAuthorization()`: 啟用授權。
+
+### 4. 依賴注入 (Dependency Injection - DI)
+
+- ASP.NET Core 內建了強大的 DI 容器。DI 是一種設計模式，可以實現「控制反轉」(Inversion of Control - IoC)，讓類別的依賴關係從內部建立改為由外部容器提供。
+- **優點**:
+    - **鬆散耦合 (Loose Coupling)**: 減少了類別之間的依賴性。
+    - **可測試性 (Testability)**: 更容易對元件進行單元測試。
+    - **可維護性 (Maintainability)**: 程式碼結構更清晰。
+- **生命週期 (Service Lifetimes)**:
+    - **Transient**: 每次請求時都會建立一個新的實例。
+    - **Scoped**: 在同一個 HTTP 請求中，只會建立一個實例。
+    - **Singleton**: 在整個應用程式生命週期中，只會建立一個實例。
+
+### 5. 路由 (Routing)
+
+- **Routing** 負責將传入的 HTTP 請求對應到特定的處理程式 (Handler)，例如 Controller 的 Action 或 Minimal API 的委派。
+- **種類**:
+    - **約定式路由 (Convention-based Routing)**: 通常用於 MVC，定義一個 URL 範本。
+    - **屬性路由 (Attribute-based Routing)**: 將路由直接定義在 Controller 或 Action 上方，更具彈性，是 Web API 的首選。
+
+## 實作練習 (Hands-on Practice)
+
+現在，讓我們建立一個最基本的 ASP.NET Core Web API 專案來體驗一下。
+
+1.  **建立專案**:
+    ```bash
+    dotnet new webapi -n MyFirstApi -o MyFirstApi
+    cd MyFirstApi
+    ```
+
+2.  **觀察 `Program.cs`**:
+    打開 `Program.cs`，你會看到類似以下的程式碼：
+
+    ```csharp
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add services to the container.
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseAuthorization();
+    app.MapControllers();
+
+    app.Run();
+    ```
+    - `WebApplication.CreateBuilder(args)`: 設定應用程式的基礎。
+    - `builder.Services...`: 這是 DI 容器，用來註冊服務。
+    - `app.Build()`: 建立 Web 應用程式。
+    - `app.Use...`: 這些是設定中介軟體。
+    - `app.Run()`: 啟動應用程式。
+
+3.  **執行專案**:
+    ```bash
+    dotnet run
+    ```
+
+4.  **測試 API**:
+    - 打開瀏覽器，前往 `https://localhost:<port>/swagger` (port 號碼可以在 `Properties/launchSettings.json` 中找到)。
+    - 你會看到 Swagger UI，這是一個自動產生的 API 文件頁面。
+    - 嘗試執行預設的 `WeatherForecast` API。
+
+## 結語
+
+你已經完成了 ASP.NET Core 基礎的初步探索！了解 Kestrel、中介軟體、DI 和路由是掌握此框架的關鍵。
+
+下一步，我們將深入探討 **ASP.NET MVC**，這是一個建立在 ASP.NET Core 之上的強大模式，用於開發 Web 應用程式。
