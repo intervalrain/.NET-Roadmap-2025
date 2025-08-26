@@ -1,5 +1,10 @@
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddOpenApi();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddAuthentication()
                 .AddJwtBearer(options =>
                 {
@@ -25,8 +30,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi()
-        .RequireAuthorization("ApiTestPolicy");
+    app.MapOpenApi();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/openapi/v1.json", "My First API v1");
+    });
 }
 
 app.UseHttpsRedirection();
@@ -52,8 +60,7 @@ app.MapGet("/weatherforecast", () =>
         .ToArray();
     return forecast;
 })
-.WithName("GetWeatherForecast")
-.RequireAuthorization("ApiTestPolicy");
+.WithName("GetWeatherForecast");
 
 app.MapGet("/secure", () => "You have access! You are a tester!")
     .RequireAuthorization("ApiTestPolicy");

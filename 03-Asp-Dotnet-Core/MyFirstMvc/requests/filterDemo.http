@@ -1,0 +1,26 @@
+@host=http://localhost:5081
+
+GET {{host}}/FilterDemo/ActionFilterDemo
+###
+
+GET {{host}}/FilterDemo/ResourceFilterDemo
+###
+
+GET {{host}}/FilterDemo/AuthorizationFilterDemo
+###
+
+GET {{host}}/FilterDemo/AuthorizationFilterDemo
+X-API-Key: demo-api-key-12345
+###
+
+GET {{host}}/FilterDemo/ResultFilterViewDemo
+###
+
+GET {{host}}/FilterDemo/ExceptionFilterDemo
+###
+
+GET {{host}}/FilterDemo/CombinedFiltersDemo
+
+###
+GET {{host}}/FilterDemo/CombinedFiltersDemo
+X-API-Key: demo-api-key-12345

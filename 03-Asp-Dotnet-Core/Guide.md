@@ -395,6 +395,8 @@ sequenceDiagram
 - **Middleware** 是構成 ASP.NET Core 應用程式請求處理管線 (Request Pipeline) 的元件。每個請求都會依序通過這些中介軟體，每個中介軟體都可以對請求進行處理，然後決定是否要將請求傳遞給下一個中介軟體。
 - **順序很重要**: 中介軟體的註冊順序決定了它們在請求處理中的執行順序。例如，`UseAuthentication` (驗證) 必須在 `UseAuthorization` (授權) 之前。
 - **常見的中介軟體**:
+    - `UseExceptionHandler()`: 例外處理，通常在最外層。
+    - `UseHttpsRedirection()`: https 重向導向。
     - `UseRouting()`: 啟用路由功能。
     - `UseEndpoints()`: 定義路由的終點 (Endpoints)，例如 MVC Controllers 或 Minimal API。
     - `UseStaticFiles()`: 讓應用程式可以提供靜態檔案 (如 HTML, CSS, JavaScript)。

@@ -1,0 +1,72 @@
+@{
+    ViewData["Title"] = "Result Filter View Demo";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-filter"></i> Result Filter 演示
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Result Filter 在 View 中的應用</h5>
+                    
+                    <div class="alert alert-info" role="alert">
+                        <strong>訊息：</strong> @ViewBag.Message
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Filter 處理資訊：</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <strong>處理時間：</strong> @ViewData["FilterProcessedTime"]
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>處理者：</strong> @ViewData["ProcessedByFilter"]
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>頁面生成時間：</strong> @ViewBag.Timestamp
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>功能說明：</h6>
+                            <p class="text-muted">
+                                這個頁面演示了 <code>Result Filter</code> 如何在 View 渲染過程中：
+                            </p>
+                            <ul>
+                                <li>添加額外的 HTTP Headers</li>
+                                <li>修改 ViewData 和 ViewBag</li>
+                                <li>在結果執行前後進行處理</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>檢查 HTTP Headers：</h6>
+                        <p class="text-muted">
+                            打開瀏覽器開發者工具 (F12)，查看 Network 標籤頁中這個頁面的 Response Headers，
+                            你會看到 Result Filter 添加的自訂 Headers：
+                        </p>
+                        <ul>
+                            <li><code>X-Custom-Server</code></li>
+                            <li><code>X-Response-Generated</code></li>
+                            <li><code>X-Result-Execution-Completed</code></li>
+                            <li><code>X-Action-Execution-Time</code> (來自 Action Filter)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="/FilterDemo/ActionFilterDemo" class="btn btn-primary me-2">Action Filter 演示</a>
+                        <a href="/FilterDemo/ResourceFilterDemo" class="btn btn-success me-2">Resource Filter 演示</a>
+                        <a href="/" class="btn btn-secondary">返回首頁</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
