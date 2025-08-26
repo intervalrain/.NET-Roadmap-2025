@@ -477,3 +477,478 @@ sequenceDiagram
 你已經完成了 ASP.NET Core 基礎的初步探索！了解 Kestrel、中介軟體、DI 和路由是掌握此框架的關鍵。
 
 下一步，我們將深入探討 **ASP.NET MVC**，這是一個建立在 ASP.NET Core 之上的強大模式，用於開發 Web 應用程式。
+
+---
+
+# Chapter 3.6: ASP.NET MVC
+
+## 前言
+
+在了解了 ASP.NET Core 的基礎之後，我們來學習一個建立在其之上的重要開發模式：**Model-View-Controller (MVC)**。MVC 是一種廣泛應用於 Web 開發的設計模式，它將應用程式的關注點分離，使程式碼更有組織、更易於維護。
+
+## MVC 模式的核心元件
+
+MVC 將應用程式分為三個主要部分：
+
+1.  **Model (模型)**:
+    - **職責**: 代表應用程式的資料和業務邏輯。它負責處理資料的存取、驗證和操作。
+    - **特點**: Model 不關心資料如何被呈現，它只專注於資料本身。在 ASP.NET Core 中，這通常是簡單的 C# 類別 (POCOs - Plain Old CLR Objects)。
+
+2.  **View (視圖)**:
+    - **職責**: 負責呈現資料給使用者，也就是使用者介面 (UI)。它從 Model 中取得資料並將其顯示出來。
+    - **特點**: View 只負責顯示，不包含任何業務邏輯。在 ASP.NET Core 中，View 通常是使用 Razor 語法編寫的 `.cshtml` 檔案。
+
+3.  **Controller (控制器)**:
+    - **職責**: 作為 Model 和 View 之間的橋樑。它接收使用者的輸入 (HTTP 請求)，調用 Model 處理業務邏輯，然後選擇一個 View 來呈現結果。
+    - **特點**: Controller 是整個請求處理流程的大腦，它協調 Model 和 View 的工作。
+
+### 請求生命週期 (Request Lifecycle in MVC)
+
+1.  請求進入 ASP.NET Core 的路由系統。
+2.  路由系統根據 URL 將請求轉發給指定的 Controller 中的特定 Action 方法。
+3.  Action 方法處理請求。它可能會：
+    - 與 Model 互動，讀取或更新資料。
+    - 將資料打包傳遞給 View。
+4.  Action 方法選擇並回傳一個 ViewResult，指定要使用哪個 View。
+5.  View 引擎 (通常是 Razor) 轉譯 View，將 Model 的資料填入 HTML 範本中。
+6.  最終生成的 HTML 作為 HTTP 回應傳回給瀏覽器。
+
+## 實作練習 (Hands-on Practice)
+
+現在，讓我們建立一個 ASP.NET Core MVC 專案。
+
+1.  **建立專案**:
+    (請確保你在 `03-Asp-Dotnet-Core` 目錄下執行)
+    ```bash
+    dotnet new mvc -n MyMvcApp -o 3.6-Mvc/MyMvcApp
+    cd 3.6-Mvc/MyMvcApp
+    ```
+
+2.  **觀察專案結構**:
+    - **`Controllers/`**: 存放 Controller 類別。你會看到一個 `HomeController.cs`。
+    - **`Models/`**: 存放 Model 類別。你會看到一個 `ErrorViewModel.cs`。
+    - **`Views/`**: 存放 View 檔案 (`.cshtml`)。
+        - **`Home/`**: 對應 `HomeController` 的 View。
+        - **`Shared/`**: 可以被多個 View 共用的版面配置檔案 (`_Layout.cshtml`)。
+    - **`wwwroot/`**: 存放靜態檔案，如 CSS, JavaScript, 圖片。
+
+3.  **分析程式碼**:
+    - **`Controllers/HomeController.cs`**:
+      ```csharp
+      public class HomeController : Controller
+      {
+          public IActionResult Index()
+          {
+              return View(); // 這會回傳 Views/Home/Index.cshtml
+          }
+      }
+      ```
+    - **`Views/Home/Index.cshtml`**:
+      這是一個 Razor 檔案，混合了 HTML 和 C# 程式碼，用來產生最終的網頁。
+
+4.  **執行專案**:
+    ```bash
+    dotnet run
+    ```
+    打開瀏覽器，前往 `https://localhost:<port>`，你將會看到由 `HomeController` 的 `Index` Action 和 `Index.cshtml` View 所呈現的預設首頁。
+
+## 結語
+
+你已經成功建立了第一個 ASP.NET Core MVC 應用程式！MVC 模式透過分離關注點，為開發複雜的 Web 應用程式提供了一個清晰、有條理的結構。
+
+下一步，我們將探討 **Filters & Attributes**，這是在 MVC Action 執行前後添加額外邏輯的強大工具。
+
+---
+
+# Chapter 3.7: Filters & Attributes
+
+## 前言
+
+在 ASP.NET Core MVC 中，我們經常需要在 Action 方法執行之前或之後執行一些共通的邏輯，例如權限檢查、日誌記錄、異常處理等。**Filters (篩選器)** 提供了一個優雅的解決方案，讓我們可以將這些橫切關注點 (Cross-cutting Concerns) 從 Action 方法中分離出來，保持 Controller 的簡潔。
+
+Filters 通常是透過 **Attributes (屬性)** 應用到 Controller 或 Action 上的。
+
+## Filters 的類型與執行順序
+
+ASP.NET Core 提供了五種類型的 Filters，它們在請求處理管線中有固定的執行順序：
+
+1.  **Authorization Filters (授權篩選器)**
+    - **用途**: 用於判斷使用者是否有權限執行某個請求。如果授權失敗，它會直接中斷後續的管線。
+    - **範例**: `[Authorize]`
+
+2.  **Resource Filters (資源篩選器)**
+    - **用途**: 在模型綁定 (Model Binding) 之前執行。適合用來實現快取或處理特定內容類型的請求。
+    - **介面**: `IResourceFilter`, `IAsyncResourceFilter`
+
+3.  **Action Filters (動作篩選器)**
+    - **用途**: 在 Action 方法執行 *前後* 執行程式碼。可以用來修改傳入 Action 的參數或傳出的結果。這是最常用的一種 Filter。
+    - **介面**: `IActionFilter`, `IAsyncActionFilter`
+
+4.  **Exception Filters (異常篩選器)**
+    - **用途**: 當 Controller 或 Action 中發生未處理的異常時，用來進行全域的異常處理。
+    - **介面**: `IExceptionFilter`, `IAsyncExceptionFilter`
+
+5.  **Result Filters (結果篩選器)**
+    - **用途**: 在 Action 結果 (例如 View 或 JSON) 執行 *前後* 執行程式碼。可以用來修改 HTTP 回應，例如加上特定的 Header。
+    - **介面**: `IResultFilter`, `IAsyncResultFilter`
+
+**執行順序圖:**
+`Request -> Authorization -> Resource -> Model Binding -> Action -> Result -> Response`
+(Exception Filters 只在發生錯誤時觸發)
+
+## 實作練習 (Hands-on Practice)
+
+讓我們來建立一個自訂的 Action Filter，用來記錄每個 Action 的執行時間。
+
+1.  **沿用上個專案**:
+    請繼續使用我們在 `3.6` 中建立的 `MyMvcApp` 專案。
+
+2.  **建立 Filter**:
+    在專案根目錄下建立一個新的資料夾 `Filters`。然後在其中新增一個 `LogActionTimeFilter.cs` 檔案：
+
+    ```csharp
+    using System.Diagnostics;
+    using Microsoft.AspNetCore.Mvc.Filters;
+
+    namespace MyMvcApp.Filters
+    {
+        public class LogActionTimeFilter : IActionFilter
+        {
+            private Stopwatch _stopwatch;
+
+            // Action 執行前
+            public void OnActionExecuting(ActionExecutingContext context)
+            {
+                _stopwatch = Stopwatch.StartNew();
+            }
+
+            // Action 執行後
+            public void OnActionExecuted(ActionExecutedContext context)
+            {
+                _stopwatch.Stop();
+                var elapsedTime = _stopwatch.ElapsedMilliseconds;
+                var controllerName = context.Controller.GetType().Name;
+                var actionName = context.ActionDescriptor.DisplayName;
+
+                // 為了方便觀察，我們直接寫入 Console
+                // 實務上應該使用 ILogger
+                Console.WriteLine($"[{controllerName}] Action '{actionName}' executed in {elapsedTime}ms.");
+            }
+        }
+    }
+    ```
+
+3.  **註冊 Filter**:
+    有兩種方式可以套用 Filter：
+
+    **a) 作為 Attribute 套用 (最常見)**
+    修改 `Controllers/HomeController.cs`，將我們的 Filter 作為 Attribute 加到 `Index` Action 上：
+
+    ```csharp
+    using Microsoft.AspNetCore.Mvc;
+    using MyMvcApp.Filters; // 記得 using
+
+    namespace MyMvcApp.Controllers
+    {
+        public class HomeController : Controller
+        {
+            [ServiceFilter(typeof(LogActionTimeFilter))] // 使用 ServiceFilter 來啟用 DI
+            public IActionResult Index()
+            {
+                return View();
+            }
+            // ... 其他 Action
+        }
+    }
+    ```
+    *為了讓 `[ServiceFilter]` 正常運作，我們還需要在 `Program.cs` 中註冊這個 Filter。*
+
+    打開 `Program.cs`，在 `builder.Services.AddControllersWithViews();` 下方加入：
+    ```csharp
+    builder.Services.AddScoped<LogActionTimeFilter>();
+    ```
+
+    **b) 全域註冊 (Global Registration)**
+    如果你希望這個 Filter 對所有 Action 都生效，可以在 `Program.cs` 中這樣註冊：
+    ```csharp
+    builder.Services.AddControllersWithViews(options =>
+    {
+        options.Filters.Add<LogActionTimeFilter>();
+    });
+    ```
+    (如果使用全域註冊，就不需要在 Controller 上加 Attribute 了)
+
+4.  **執行與觀察**:
+    - 選擇其中一種方式註冊 Filter。
+    - 執行專案 `dotnet run`。
+    - 訪問首頁。
+    - 查看你的終端機 (Console)，你應該會看到類似以下的輸出：
+      `[HomeController] Action 'MyMvcApp.Controllers.HomeController.Index (MyMvcApp)' executed in XXms.`
+
+## 結語
+
+Filters 和 Attributes 是 ASP.NET Core MVC 中非常強大的功能，它們有助於我們撰寫更乾淨、更模組化的程式碼，並有效地處理橫切關注點。
+
+下一步，我們將探討 **Middleware**，這是比 Filters 更低階、但同樣重要的請求處理元件。
+
+---
+
+# Chapter 3.8: Middleware
+
+## 前言
+
+我們已經在前面的章節中多次提到 **Middleware (中介軟體)**。現在，讓我們來深入了解這個 ASP.NET Core 應用程式的骨幹。Middleware 是處理 HTTP 請求和回應的軟體元件，它們被組合成一個「管線」(Pipeline) 來處理每一個傳入的請求。
+
+## Middleware 與 Request Pipeline
+
+想像一下一個工廠的生產線。一個產品（HTTP 請求）從生產線的一端進入，經過一系列的處理站（Middleware），最後在另一端產出成品（HTTP 回應）。
+
+-   **Request Pipeline**: 這就是由一系列 Middleware 組成的處理管線。
+-   **順序至關重要**: Middleware 的註冊順序決定了它們的執行順序。請求會按照註冊順序依次通過每個 Middleware，然後回應會以相反的順序依次通過它們。
+
+這帶來了極大的彈性。每個 Middleware 都可以：
+1.  **決定是否將請求傳遞給管線中的下一個 Middleware。**
+2.  **在呼叫下一個 Middleware 之前和之後執行工作。**
+
+例如，一個典型的請求流程可能是：
+`Request -> Exception Handling -> Static Files -> Routing -> Authentication -> Authorization -> Endpoint (Your Action) -> Response`
+
+回應會以相反的順序流出：
+`Response <- Exception Handling <- Static Files <- Routing <- Authentication <- Authorization <- Endpoint (Your Action)`
+
+### `Use` vs. `Run`
+
+在 `Program.cs` 中設定管線時，你會看到兩種主要的方法：
+
+-   **`app.Use(...)`**:
+    - 用於鏈接管線中的 Middleware。
+    - 它會處理請求，然後**可以**呼叫 `next()` 將請求傳遞給下一個 Middleware。
+    - 這是最常見的方式。
+
+-   **`app.Run(...)`**:
+    - 用於終止管線。它被稱為 **Terminal Middleware (終端中介軟體)**。
+    - 它會處理請求，但**不會**呼叫下一個 Middleware。
+    - 一旦請求到達 `Run` Middleware，管線就會開始「返回」。
+    - `app.MapControllers()` 或 Minimal API 的 `MapGet()` 內部其實就隱含了終端中介軟體。
+
+## Middleware vs. Filters
+
+這是一個常見的混淆點。它們都可以處理橫切關注點，但層級和使用場景不同。
+
+| 特性 | Middleware | Filters |
+| :--- | :--- | :--- |
+| **層級** | 較低階，處理 HTTP `HttpContext` | 較高階，屬於 MVC/API 框架的一部分 |
+| **範圍** | 應用程式全域 | 可套用於全域、Controller 或 Action |
+| **上下文** | 只能存取 `HttpContext` | 可以存取更豐富的 MVC 上下文，如 `ActionArguments`, `ActionResult` |
+| **使用場景** | 靜態檔案、路由、驗證、CORS、日誌 | 驗證特定 Action、修改模型綁定、處理 Action 層級的異常 |
+
+**簡單來說：如果一個功能不依賴於 MVC 的特定概念 (如 Action 或 Model)，那麼它更適合做成 Middleware。**
+
+## 實作練習 (Hands-on Practice)
+
+讓我們來建立一個簡單的自訂 Middleware，它會在 HTTP 回應的 Header 中加入一個自訂的標頭。
+
+1.  **建立專案**:
+    (請確保你在 `03-Asp-Dotnet-Core` 目錄下執行)
+    ```bash
+    dotnet new webapi -n MyMiddlewareApp -o 3.8-Middleware/MyMiddlewareApp
+    cd 3.8-Middleware/MyMiddlewareApp
+    ```
+
+2.  **建立 Middleware 類別**:
+    在專案根目錄下建立一個 `CustomMiddleware.cs` 檔案。
+
+    ```csharp
+    public class CustomHeaderMiddleware
+    {
+        private readonly RequestDelegate _next;
+
+        public CustomHeaderMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            // 在將回應傳送給客戶端之前，新增一個 Header
+            context.Response.OnStarting(() => {
+                context.Response.Headers.Append("X-Custom-Header", "Hello from custom middleware!");
+                return Task.CompletedTask;
+            });
+
+            // 呼叫管線中的下一個 Middleware
+            await _next(context);
+        }
+    }
+    ```
+    - `RequestDelegate _next`: 代表管線中的下一個 Middleware。
+    - `InvokeAsync`: Middleware 的主要處理方法。我們在這裡使用 `Response.OnStarting` 來確保 Header 是在回應即將開始寫入時才被加入。
+
+3.  **註冊 Middleware**:
+    打開 `Program.cs`，在 `var app = builder.Build();` 之後，`app.UseHttpsRedirection();` 之前，加入我們的自訂 Middleware。
+
+    ```csharp
+    // ...
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    // 在這裡加入我們的自訂 Middleware
+    app.UseMiddleware<CustomHeaderMiddleware>();
+
+    app.UseHttpsRedirection();
+    // ...
+    ```
+
+4.  **執行與觀察**:
+    - 執行專案 `dotnet run`。
+    - 打開瀏覽器，並打開開發者工具 (F12)，切換到「網路 (Network)」分頁。
+    - 前往 `https://localhost:<port>/swagger` 或任何 API 端點。
+    - 點擊該請求，查看「回應標頭 (Response Headers)」。你應該會看到我們自訂的 `X-Custom-Header`。
+
+## 結語
+
+恭喜！你已經學會了如何建立和使用 Middleware。Middleware 是 ASP.NET Core 的核心，理解它對於建構高效能、模組化的 Web 應用程式至關重要。
+
+現在你已經掌握了 ASP.NET Core 的所有基礎知識，從 Web 運作原理到 MVC 和 Middleware。我們已經準備好進入下一個階段，開始建構更真實、更複雜的應用程式了！
+
+---
+
+# Chapter 3.9: Server
+
+## 前言
+
+我們已經知道 ASP.NET Core 應用程式是由 Kestrel 這個 Web Server 執行的。然而，在實際的生產環境中，部署和執行應用程式的方式遠不止 `dotnet run` 這麼簡單。本章節將深入探討 ASP.NET Core 的心臟——伺服器 (Server)，特別是 Kestrel，以及它如何與反向代理伺服器協同工作。
+
+## Kestrel: 跨平台的高效能伺服器
+
+**Kestrel** 是 ASP.NET Core 內建且預設的 Web Server。它是一個事件驅動、非同步 I/O 的跨平台伺服器，也是讓 ASP.NET Core 能夠實現頂級效能的關鍵功臣。
+
+**主要特點:**
+- **高效能**: Kestrel 是 .NET 生態系中速度最快的 Web Server 之一。
+- **跨平台**: 可以在 Windows, macOS 和 Linux 上執行。
+- **輕量級**: 核心功能集中，不包含傳統 Web Server (如 IIS) 的所有管理功能。
+- **安全**: 預設設定已針對常見的 Web 攻擊進行了強化。
+
+雖然 Kestrel 本身就可以作為一個面向網際網路的邊緣伺服器 (Edge Server)，但在生產環境中，微軟強烈建議將 Kestrel 與**反向代理伺服器 (Reverse Proxy Server)** 結合使用。
+
+## 反向代理的角色
+
+反向代理伺服器（如 IIS, Nginx, Apache）位於網際網路和您的 Kestrel 伺服器之間。它接收來自客戶端的 HTTP 請求，然後將這些請求轉發到後端的 Kestrel 伺服器。
+
+**為什麼需要反向代理？**
+
+因為專業的反向代理伺服器提供了許多 Kestrel 本身不具備或不專精的強大功能：
+
+1.  **負載平衡 (Load Balancing)**: 將傳入的流量分配到多個後端 Kestrel 伺服器實例，提高應用程式的可用性和延展性。
+2.  **SSL/TLS 終止 (SSL/TLS Termination)**: 由反向代理處理 HTTPS 的加解密工作。這樣，後端的 Kestrel 伺服器只需處理未加密的 HTTP 請求，從而減輕負擔。
+3.  **安全性與強化 (Security & Hardening)**: 反向代理可以設定更複雜的防火牆規則，過濾惡意請求，並隱藏後端伺服器的真實架構。
+4.  **靜態內容服務 (Static Content Caching)**: 由反向代理直接提供靜態檔案（如 CSS, JS, 圖片），或對其進行快取，減輕 Kestrel 的壓力。
+5.  **多應用程式共存**: 可以在同一個 IP 位址和通訊埠上，根據主機名稱或路徑將請求轉發到不同的後端應用程式。
+
+### 常見的部署模型
+
+```mermaid
+graph TD
+    subgraph Internet
+        Client[用戶端瀏覽器]
+    end
+
+    subgraph "DMZ (非軍事區)"
+        Proxy[反向代理伺服器<br/>(IIS, Nginx, Apache)]
+    end
+
+    subgraph "內部網路"
+        Kestrel1[ASP.NET Core App on Kestrel]
+        Kestrel2[ASP.NET Core App on Kestrel]
+        Kestrel3[...]
+    end
+
+    Client --> Proxy
+    Proxy --> Kestrel1
+    Proxy --> Kestrel2
+    Proxy --> Kestrel3
+```
+
+在這個模型中，只有反向代理伺服器暴露在公網上。Kestrel 應用程式則安全地執行在內部網路中，只接收來自受信任的反向代理的請求。
+
+## 結語
+
+理解 Kestrel 與反向代理的協作關係是成功部署和擴展 ASP.NET Core 應用程式的關鍵。Kestrel 提供了無與倫比的執行效能，而反向代理則補足了生產環境所需的負載平衡、安全性和管理彈性。這種組合讓 ASP.NET Core 成為一個既高效能又極具彈性的 Web 框架。
+
+---
+
+# Chapter 3.10: Host
+
+## 前言
+
+如果說 Middleware 是 ASP.NET Core 應用程式的骨幹，那麼 **Host (主機)** 就是乘載這一切的軀幹與大腦。Host 是應用程式的執行環境，它負責啟動、設定和管理應用程式的整個生命週期，並將所有零散的服務（如 DI、日誌、設定）整合在一起。
+
+## 什麼是 Host？
+
+在 ASP.NET Core 中，Host (`IHost`) 是一個物件，它封裝了應用程式的所有資源。當您的應用程式啟動時，第一件事就是建立和設定這個 Host。
+
+Host 主要負責管理以下幾個核心元件：
+
+1.  **依賴注入 (Dependency Injection)**: Host 內部包含一個 DI 容器 (`IServiceProvider`)，負責建立和管理應用程式中所有服務的生命週期。
+2.  **日誌 (Logging)**: Host 設定了日誌系統，讓您可以在應用程式的任何地方寫入日誌。
+3.  **設定 (Configuration)**: Host 載入了應用程式的設定（來自 `appsettings.json`、環境變數等），並將它們提供給應用程式的其他部分使用。
+4.  **託管服務 (Hosted Services)**: Host 管理著所有背景服務 (`IHostedService`) 的生命週期，確保它們在應用程式啟動時啟動，在應用程式關閉時正常停止。
+5.  **應用程式生命週期 (Application Lifetime)**: Host 提供了一個機制 (`IHostApplicationLifetime`)，讓您可以掛鉤到應用程式的啟動和關閉事件。
+
+## 通用主機 (Generic Host)
+
+從 ASP.NET Core 3.0 開始，框架引入了**通用主機 (Generic Host)** 的概念。這意味著不僅是 Web 應用程式，就連主控台應用程式、背景服務 (Worker Services) 等非 Web 應用程式，都可以使用同一套 Host 基礎架構來獲得 DI、日誌和設定等強大功能。這大大統一了 .NET 的應用程式模型。
+
+## WebApplication 和 WebApplicationBuilder
+
+在最新的 .NET 6+ 版本中，為了簡化 Web 應用的啟動流程，引入了 `WebApplication` 和 `WebApplicationBuilder`。這兩個類別是對通用主機的進一步封裝，專為 Web 應用程式量身打造。
+
+讓我們再次檢視 `Program.cs` 中的程式碼：
+
+```csharp
+// 1. 建立 WebApplicationBuilder
+var builder = WebApplication.CreateBuilder(args);
+
+// 2. 註冊服務到 DI 容器
+builder.Services.AddControllers();
+// ...
+
+// 3. 從 Builder 建立 WebApplication
+var app = builder.Build();
+
+// 4. 設定 Middleware 管線
+app.UseHttpsRedirection();
+// ...
+
+// 5. 執行應用程式
+app.Run();
+```
+
+這個看似簡單的流程，背後其實就完成了 Host 的所有設定工作：
+
+-   **`WebApplication.CreateBuilder(args)`**:
+    -   這一步驟會建立一個 `IHostBuilder` 和 `IWebHostBuilder` 的實例。
+    -   它會設定 Kestrel 作為預設伺服器。
+    -   它會載入 `appsettings.json`、環境變數、使用者密碼等作為設定來源。
+    -   它會設定日誌系統，將日誌輸出到 Console 和 Debug 視窗。
+    -   `builder.Services` 屬性就是應用程式的 DI 容器 (`IServiceCollection`)。
+    -   `builder.Configuration` 屬性就是載入好的設定物件。
+
+-   **`builder.Build()`**:
+    -   這個方法會根據 `builder` 中所有的設定，建立 Host 的實例。
+    -   在 Web 應用中，這個 Host 就是 `WebApplication` 物件 `app`。`app` 同時實現了 `IHost` (用於管理生命週期) 和 `IApplicationBuilder` (用於設定 Middleware)。
+
+-   **`app.Run()`**:
+    -   這個方法會啟動 Host。
+    -   Host 會啟動 Kestrel 伺服器，並開始監聽傳入的 HTTP 請求。
+    -   它會阻塞主執行緒，直到應用程式被關閉 (例如透過 `Ctrl+C`)。
+
+## 結語
+
+Host 是 ASP.NET Core 應用程式的基礎。它像一個精密的協調者，將設定、日誌、依賴注入和應用程式生命週期管理等核心功能無縫地整合在一起。透過 `WebApplicationBuilder`，現代的 ASP.NET Core 讓我們能夠以極其簡潔的程式碼來設定和啟動這個強大的執行環境，使開發者可以更專注於應用程式本身的業務邏輯。

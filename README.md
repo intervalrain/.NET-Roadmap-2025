@@ -28,8 +28,8 @@
   - [x] How DNS works
   - [x] What happens when you type a URL into the browser?
 - [x] ASP.NET Core Fundamentals
-- [ ] ASP.NET MVC
-- [ ] Filters & Attributes
+- [x] ASP.NET MVC
+- [x] Filters & Attributes
 - [ ] Middleware
 - [ ] Host
 - [ ] Server
