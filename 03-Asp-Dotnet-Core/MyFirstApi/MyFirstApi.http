@@ -1,0 +1,23 @@
+@host = http://localhost:5055
+
+GET {{host}}/helloworld
+
+###
+
+GET {{host}}/weatherforecast/
+Content-Type: : application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluIiwicm9sZSI6InRlc3RlciIsIm5iZiI6MTc1NjIyNjg4MSwiZXhwIjoxNzU2MjMwNDgxLCJpYXQiOjE3NTYyMjY4ODF9.3JvcdQFqeMsGO3O7wLY5Hz0mkPoOSPSHE6x31gSNYjw
+###
+
+GET {{host}}/secure
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluIiwicm9sZSI6InRlc3RlciIsIm5iZiI6MTc1NjIyNjg4MSwiZXhwIjoxNzU2MjMwNDgxLCJpYXQiOjE3NTYyMjY4ODF9.3JvcdQFqeMsGO3O7wLY5Hz0mkPoOSPSHE6x31gSNYjw
+
+###
+
+POST {{host}}/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "1q2w3E*" 
+}
