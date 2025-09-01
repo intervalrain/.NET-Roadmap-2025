@@ -6,10 +6,23 @@ namespace DIDemo.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IAuthService authService, IUserService userService) : ControllerBase
+public class AuthController(IAuthService authService, IUserService userService, IPasswordHasher passwordHasher) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
     private readonly IUserService _userService = userService;
+    private readonly IPasswordHasher _passwordHasher = passwordHasher;
+
+    [HttpGet("hash")]
+    public IActionResult Hash([FromQuery] string password)
+    {
+        var (hash, salt) = _passwordHasher.HashPassword(password);
+
+        return Ok(new
+        {
+            PasswordHash = hash,
+            Salt = salt
+        });
+    }
 
     [HttpPost("register")]
     public IActionResult Register([FromBody] RegisterRequest request)
