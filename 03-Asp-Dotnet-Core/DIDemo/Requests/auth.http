@@ -1,0 +1,29 @@
+@host="http://localhost:5250"
+
+POST {{host}}/api/Auth/register
+Content-Type: application/json
+
+{
+
+}
+
+###
+POST {{host}}/api/Auth/Login
+Content-Type: application/json
+
+{
+
+}
+
+###
+GET {{host}}/api/Auth/users
+Content-Type: application/json
+
+###
+
+GET {{host}}/api/Auth/user/rain
+Content-Type: application/json
+
+{
+
+}
