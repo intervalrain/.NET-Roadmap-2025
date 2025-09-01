@@ -1487,6 +1487,13 @@ public class UsersController : ControllerBase
 4.  將解析出的服務實例傳入 `UsersController` 的建構函式。
 5.  完成 `UsersController` 的建立。
 
+## 範例
+在實作範例中 DIDemo 中，可以觀察 `IPasswordHasher` 用不同的生命週期注入，表現出來的行為都不一樣。其中 `Use` 是一種中間層(middleware) 的用法，代表在一次 HttpRequest 的前後，都加上若干處理，比方說範例中的用法，就是捕捉呼叫 `{host}/api/Auth/hash` 的請求，並使用 `IPasswordHasher` 進行 `Hash` 後再傳入 Controller 中。
+
++ Singleton: 每一次的請求所得到的 salt 都會一樣。
++ Scoped: 在一次請求內的 salt 會一致。(中間層在 logger 印出來的 salt 會跟 API response 的 salt 一致)。
++ Transient: 在每一次的請所得到的 salt 都會不一樣，包含中間層的 logger 印出來的 salt 也會跟 API response 不一樣。
+
 ## 結語
 
 依賴注入是 ASP.NET Core 的基石。它透過控制反轉實現了鬆散耦合，使得應用程式更加模組化、可測試和可維護。深刻理解服務的註冊方式和三種核心生命週期（Transient, Scoped, Singleton）的區別，是成為一名高效的 ASP.NET Core 開發者的必經之路。
