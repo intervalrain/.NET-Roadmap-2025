@@ -1,0 +1,7 @@
+@host=http://localhost:5254
+
+GET {{host}}
+
+###
+
+GET {{host}}/hello?name=Rain

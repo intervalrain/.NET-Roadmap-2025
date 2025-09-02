@@ -1,0 +1,27 @@
+@host=http://localhost:5254
+
+GET {{host}}/api/products
+
+###
+
+GET {{host}}/api/products/3
+
+###
+
+POST {{host}}/api/products
+Content-Type: application/json
+
+{
+    "name": "iPhone 13 Pro Max Plus"
+}
+###
+
+PUT {{host}}/api/products/2
+Content-Type: application/json
+
+{
+    "name": "iPhone 13 Pro"
+}
+
+### 
+DELETE {{host}}/api/products/4
